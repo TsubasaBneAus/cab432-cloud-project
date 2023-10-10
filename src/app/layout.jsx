@@ -1,8 +1,10 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
-import { Providers } from "./providers";
+import { Montserrat } from "next/font/google";
+import { UIProvider, NextAuthProvider } from "./providers";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Image Converter",
@@ -11,9 +13,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="light">
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+    <html lang="en" className={montserrat.className}>
+      <body className="bg-blue-950 text-white">
+        <UIProvider>
+          <NextAuthProvider>
+            <div className="flex h-screen flex-col">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+          </NextAuthProvider>
+        </UIProvider>
       </body>
     </html>
   );
