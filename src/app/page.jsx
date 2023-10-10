@@ -32,7 +32,7 @@ const Home = () => {
     a.href = blobUrl;
     a.download = "downloaded-image.png";
     a.click();
-  }
+  };
 
   // Display an image after editing
   const displayPreview2 = () => {
@@ -45,7 +45,12 @@ const Home = () => {
             alt="Downloaded image"
             width={300}
           />
-          <Button type="button" color="primary" variant="solid" onClick={handleClick}>
+          <Button
+            type="button"
+            color="primary"
+            variant="solid"
+            onClick={handleClick}
+          >
             Download the Edited Image
           </Button>
         </div>
@@ -70,7 +75,7 @@ const Home = () => {
   };
 
   return (
-    <main className="flex flex-col items-center">
+    <main className="flex grow flex-col items-center">
       <form className="flex flex-col items-center" onSubmit={handleSubmit}>
         <label htmlFor="image">Select an Image file</label>
         <input
