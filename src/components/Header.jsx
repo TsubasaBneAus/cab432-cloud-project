@@ -10,7 +10,7 @@ const Header = () => {
     if (status == "authenticated") {
       return (
         <button
-          className="col-start-3 col-end-4 text-xl font-semibold"
+          className="col-start-2 col-end-3 text-right text-xl font-semibold"
           onClick={() => signOut()}
         >
           Sign out
@@ -19,7 +19,7 @@ const Header = () => {
     } else {
       return (
         <button
-          className="col-start-3 col-end-4 text-xl font-semibold"
+          className="col-start-2 col-end-3 text-right text-xl font-semibold"
           onClick={() => signIn("google")}
         >
           Sign in
@@ -29,8 +29,8 @@ const Header = () => {
   };
 
   return (
-    <header className="grid grid-cols-3 py-2">
-      <h1 className="col-start-1 col-end-2 text-center text-3xl font-semibold">
+    <header className="grid grid-cols-2 px-6 py-2">
+      <h1 className="col-start-1 col-end-2 text-left text-3xl font-semibold">
         Image Converter
       </h1>
       {isSignedIn()}
