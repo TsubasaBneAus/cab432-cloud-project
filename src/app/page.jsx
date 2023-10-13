@@ -1,100 +1,84 @@
 "use client";
 
 import { useState } from "react";
-import { Image, Button } from "@nextui-org/react";
+import { useSession } from "next-auth/react";
+import { CircularProgress } from "@nextui-org/react";
+import EditingPage from "@/components/EditingPage";
 
 const Home = () => {
-  const [image, setImage] = useState(null);
-  const [binaryImage, setBinaryImage] = useState(null);
-
-  // Display an image to upload
-  const displayPreview1 = () => {
-    if (image) {
-      return (
-        <Image
-          src={window.URL.createObjectURL(image)}
-          alt="Uploaded image"
-          width={300}
-        />
-      );
-    }
-  };
-
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [editedImage, setEditedImage] = useState(null);
+  const [imageWidth, setImageWidth] = useState(null);
+  const [imageEffect, setImageEffect] = useState(null);
+  const [imageFormatType, setImageFormatType] = useState(null);
+  const { status } = useSession();
   // Handle a click event to download the edited image
-  const handleClick = () => {
-    // Convert Node.js Buffer into Blob
-    const buffer = Buffer.from(binaryImage);
-    const blob = new Blob([buffer]);
-    const blobUrl = window.URL.createObjectURL(blob);
+  // const handleClick = () => {
+  //   // Convert Node.js Buffer into Blob
+  //   const buffer = Buffer.from(editedImage);
+  //   const blob = new Blob([buffer]);
+  //   const blobUrl = window.URL.createObjectURL(blob);
 
-    // Download the Blob image into a user's PC
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = "downloaded-image.png";
-    a.click();
-  };
-
-  // Display an image after editing
-  const displayPreview2 = () => {
-    if (binaryImage) {
-      const base64Image = Buffer.from(binaryImage).toString("base64");
-      return (
-        <div className="flex flex-col items-center">
-          <Image
-            src={`data:image/jpeg;base64,${base64Image}`}
-            alt="Downloaded image"
-            width={300}
-          />
-          <Button
-            type="button"
-            color="primary"
-            variant="solid"
-            onClick={handleClick}
-          >
-            Download the Edited Image
-          </Button>
-        </div>
-      );
-    }
-  };
+  //   // Download the Blob image into a user's PC
+  //   const a = document.createElement("a");
+  //   a.href = blobUrl;
+  //   a.download = "downloaded-image.png";
+  //   a.click();
+  // };
 
   // Handle a form submission to upload images to S3
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(image);
+    console.log(uploadedImage);
 
-    const formData = new FormData();
-    formData.append("image", image);
-    const res = await fetch("/api/uploadImages", {
-      method: "POST",
-      body: formData,
-    });
-    const modifiedImage = await res.json();
-    console.log(modifiedImage);
-    setBinaryImage(modifiedImage);
+    // const formData = new FormData();
+    // formData.append("image", image);
+    // const res = await fetch("/api/uploadImages", {
+    //   method: "POST",
+    //   body: formData,
+    // });
+    // const modifiedImage = await res.json();
+    // console.log(modifiedImage);
+    // setEditedImage(modifiedImage);
   };
 
-  return (
-    <main className="flex grow flex-col items-center">
-      <form className="flex flex-col items-center" onSubmit={handleSubmit}>
-        <label htmlFor="image">Select an Image file</label>
-        <input
-          className="hidden"
-          type="file"
-          accept="image/*"
-          name="image"
-          id="image"
-          onChange={(e) => setImage(e.target.files[0])}
-          required
+  // Change the top page depending on if a user is already signed in
+  if (status == "authenticated") {
+    return (
+      <EditingPage
+        uploadedImage={uploadedImage}
+        setUploadedImage={setUploadedImage}
+        editedImage={editedImage}
+        imageWidth={imageWidth}
+        setImageWidth={setImageWidth}
+        imageEffect={imageEffect}
+        setImageEffect={setImageEffect}
+        imageFormatType={imageFormatType}
+        setImageFormatType={setImageFormatType}
+      />
+    );
+  } else if (status == "loading") {
+    return (
+      <main className="flex grow flex-col items-center justify-center">
+        <CircularProgress
+          classNames={{
+            svg: "w-28 h-28",
+            label: "text-xl",
+          }}
+          color="primary"
+          label="Loading..."
         />
-        <Button type="submit" color="primary" variant="solid">
-          Submit
-        </Button>
-      </form>
-      {displayPreview1()}
-      {displayPreview2()}
-    </main>
-  );
+      </main>
+    );
+  } else {
+    return (
+      <main className="flex grow flex-col items-center justify-center">
+        <h1 className="animate-fade-in-top mb-5 text-center text-4xl font-semibold">
+          Please Sign in to the Image Converter Account!
+        </h1>
+      </main>
+    );
+  }
 };
 
 export default Home;
