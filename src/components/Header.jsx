@@ -10,7 +10,7 @@ const Header = () => {
     if (status == "authenticated") {
       return (
         <button
-          className="col-start-2 col-end-3 text-right text-xl font-semibold transition-colors hover:text-blue-500"
+          className="col-start-2 col-end-3 text-right text-xl font-semibold transition-colors hover:text-indigo-500"
           onClick={() => signOut()}
         >
           Sign out
@@ -19,7 +19,7 @@ const Header = () => {
     } else {
       return (
         <button
-          className="col-start-2 col-end-3 text-right text-xl font-semibold transition-colors hover:text-blue-500"
+          className="col-start-2 col-end-3 text-right text-xl font-semibold transition-colors hover:text-indigo-500"
           onClick={() => signIn("google")}
         >
           Sign in

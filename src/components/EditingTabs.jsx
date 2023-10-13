@@ -3,17 +3,29 @@
 import { Tabs, Tab } from "@nextui-org/react";
 
 const EditingTabs = (props) => {
+  let tabArray = [];
+  const keys = props.option.values;
+  for (let i = 0; i < keys.length; i++) {
+    tabArray.push(<Tab key={keys[i]} title={keys[i]} />);
+  }
+
   return (
-    <Tabs 
-        aria-label="Options"         
-        selectedKey={props.keys[0]}
-        onSelectionChange={props.setKey}
+    <div className="w-full">
+      <p className="mb-1 text-xl">{props.option.title}</p>
+      <Tabs
+        classNames={{
+          tabList: "bg-slate-900",
+          tabContent: "text-white",
+        }}
+        aria-label="Options"
+        color="primary"
+        selectedKey={props.selected}
+        onSelectionChange={props.setSelected}
       >
-        <Tab key={props.keys[0]} title={props.titles[0]} />
-        <Tab key={props.keys[1]} title={props.titles[1]} />
-        <Tab key={props.keys[2]} title={props.titles[2]} />
+        {tabArray}
       </Tabs>
-  )
+    </div>
+  );
 };
 
-export default EditingTab;
+export default EditingTabs;
