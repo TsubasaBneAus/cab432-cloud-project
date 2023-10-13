@@ -99,7 +99,7 @@ const Home = () => {
     return (
       <main className="flex grow flex-col items-center justify-center">
         <label
-          className="mb-5 text-4xl font-semibold transition-colors hover:text-blue-500"
+          className="mb-5 text-4xl font-semibold transition-colors hover:text-blue-500 animate-fade-in-top"
           htmlFor="image"
         >
           Click Here to Select an Image file
