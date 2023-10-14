@@ -38,11 +38,27 @@ const EditingPage = (props) => {
     );
   };
 
+  // Handle the click event of the button to upload an image to ElastiCache
+  const handleClick = async () => {
+    console.log(props.uploadedImage);
+    const formData = new FormData();
+    formData.append("image", props.uploadedImage);
+    console.log(typeof props.uploadedImage);
+    const res = await fetch("/api/uploadImages", {
+      method: "POST",
+      body: formData,
+    });
+    const modifiedImage = await res.json();
+    console.log(modifiedImage);
+    // console.log(modifiedImage.data);
+    props.setEditedImage(modifiedImage);
+  };
+
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
     return (
       <main className="flex grow">
-        <div className="animate-fade-in-top grid w-full grid-cols-2 grid-rows-4 items-center justify-center">
+        <div className="grid w-full animate-fade-in-top grid-cols-2 grid-rows-4 items-center justify-center">
           <div className="col-start-1 col-end-2 row-start-1 row-end-4 flex items-center justify-center">
             {displayPreview()}
           </div>
@@ -93,7 +109,7 @@ const EditingPage = (props) => {
             <Button
               className="w-full max-w-md transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               color="primary"
-              onPress={() => props.setUploadedImage(null)}
+              onPress={handleClick}
             >
               Edit the Image
             </Button>
@@ -105,7 +121,7 @@ const EditingPage = (props) => {
     return (
       <main className="flex grow flex-col items-center justify-center">
         <label
-          className="animate-fade-in-top mb-5 text-center text-4xl font-semibold transition-colors hover:text-indigo-500"
+          className="mb-5 animate-fade-in-top text-center text-4xl font-semibold transition-colors hover:text-indigo-500"
           htmlFor="image"
         >
           Click Here to Select an Image file

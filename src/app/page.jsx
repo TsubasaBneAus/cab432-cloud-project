@@ -26,22 +26,6 @@ const Home = () => {
   //   a.click();
   // };
 
-  // Handle a form submission to upload images to S3
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(uploadedImage);
-
-    // const formData = new FormData();
-    // formData.append("image", image);
-    // const res = await fetch("/api/uploadImages", {
-    //   method: "POST",
-    //   body: formData,
-    // });
-    // const modifiedImage = await res.json();
-    // console.log(modifiedImage);
-    // setEditedImage(modifiedImage);
-  };
-
   // Change the top page depending on if a user is already signed in
   if (status == "authenticated") {
     return (
@@ -49,6 +33,7 @@ const Home = () => {
         uploadedImage={uploadedImage}
         setUploadedImage={setUploadedImage}
         editedImage={editedImage}
+        setEditedImage={setEditedImage}
         imageWidth={imageWidth}
         setImageWidth={setImageWidth}
         imageEffect={imageEffect}

@@ -1,0 +1,18 @@
+# Specify a base image
+FROM node:18.17.1
+
+# Set a working directory
+WORKDIR /app
+
+# Copy package.json files to the working directory and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the application files
+COPY . .
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Start a development server
+CMD [ "npm", "run", "dev" ]
