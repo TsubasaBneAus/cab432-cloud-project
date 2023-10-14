@@ -1,0 +1,32 @@
+services:
+  nextjs:
+    image: cab432-cloud-project-nextjs-prod
+    container_name: cab432-cloud-project-nextjs-prod
+    build:
+      dockerfile: Dockerfile.prod
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    tty: true
+    depends_on:
+      - redis
+    networks:
+      - shared-network
+
+      
+  redis:
+    image: redis:7.2
+    container_name: cab432-cloud-project-redis-prod
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - shared-network
+
+volumes:
+  redis-data:
+
+networks:
+  shared-network:
