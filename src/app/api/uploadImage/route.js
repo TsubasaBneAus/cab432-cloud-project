@@ -24,7 +24,7 @@ export const POST = async (req) => {
 
   // Upload the base64-encoded Node.js Buffer to RDS
   const prisma = new PrismaClient();
-  const updateImage = await prisma.userImage.update({
+  await prisma.userImage.update({
     where: {
       userId: session.user.id,
     },
@@ -32,7 +32,6 @@ export const POST = async (req) => {
       base64Image: buffer,
     },
   });
-  console.log(updateImage);
 
   return Response.json("The image has been uploaded!");
 };
