@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -19,6 +19,16 @@ export const authOptions = {
     session: async ({ session, user }) => {
       session.user.id = user.id;
       return session;
+    },
+  },
+  events: {
+    // Create a record in "UserImage" table
+    createUser: async ({ user }) => {
+      await prisma.userImage.create({
+        data: {
+          userId: user.id,
+        },
+      });
     },
   },
 };
