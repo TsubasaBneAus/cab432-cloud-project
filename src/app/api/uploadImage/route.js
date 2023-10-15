@@ -1,33 +1,37 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { createClient } from "redis";
+import { PrismaClient } from "@prisma/client";
 
 export const POST = async (req) => {
   // Extract the data of "image" key from the FormData
   const data = await req.formData();
   const image = data.get("image");
 
-  // Convert the image data into ArrayBuffer
+  // Convert the image data into a base64-encoded Node.js Buffer
   const arrayBuffer = await image.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer).toString("base64");
 
-  // Convert the ArrayBuffer into Node.js Buffer
-  const nodejsBuffer = Buffer.from(arrayBuffer);
-
-  // Fetch user's session data
+  // Upload the base64-encoded Node.js Buffer to Redis
   const session = await getServerSession(authOptions);
-
   const client = await createClient({
     url: "redis://redis:6379",
   })
     .on("error", (err) => console.log("Redis Client Error", err))
     .connect();
-
-  // const json = session.user;
-  // await client.set(session.user.id, JSON.stringify(json));
-  // const value = await client.get(session.user.id);
-  await client.setBuffer(session.user.id, "buffer", nodejsBuffer);
-
+  await client.set(session.user.id, buffer);
   await client.disconnect();
 
-  return Response.json(nodejsBuffer);
+  // Upload the base64-encoded Node.js Buffer to RDS
+  const prisma = new PrismaClient();
+  await prisma.userImage.update({
+    where: {
+      userId: session.user.id,
+    },
+    data: {
+      base64Image: buffer,
+    },
+  });
+
+  return Response.json("The image has been uploaded!");
 };

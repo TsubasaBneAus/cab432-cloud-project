@@ -6,11 +6,11 @@ import { Image, Button, Input } from "@nextui-org/react";
 const EditingPage = (props) => {
   const effects = {
     title: "Effect",
-    values: ["Blur", "Median", "Gamma", "Negate", "Convolve", "Grayscale"],
+    values: ["None", "Blur", "Median", "Gamma", "Negate", "Convolve", "Grayscale"],
   };
   const formatTypes = {
     title: "Image Format Type",
-    values: ["JPEG", "PNG"],
+    values: ["JPEG", "PNG", "WebP", "TIFF", "HEIF", "AVIF"],
   };
 
   // Display an image as a preview
@@ -38,24 +38,40 @@ const EditingPage = (props) => {
     );
   };
 
-  // Handle the click event of the button to upload an image to ElastiCache
-  const handleClick = async () => {
-    console.log(props.uploadedImage);
+  // Handle the click event of buttons
+  const handleClick = async (action) => {
+    // Check the action of the button
+    if (action == "Back to Image Selection") {
+      props.setUploadedImage(null);
+      props.setEditedImage(null);
+      props.setImageWidth(null);
+      props.setImageEffect(null);
+      props.setImageFormatType(null);
+    } else {
+      const formData = new FormData();
+      formData.append("image", props.uploadedImage);
+      const res = await fetch("/api/uploadImages", {
+        method: "POST",
+        body: formData,
+      });
+      const modifiedImage = await res.json();
+      props.setEditedImage(modifiedImage);
+    }
+  };
+
+  // Upload an image to Redis and RDS
+  const uploadImage = async () => {
     const formData = new FormData();
     formData.append("image", props.uploadedImage);
-    console.log(typeof props.uploadedImage);
-    const res = await fetch("/api/uploadImages", {
+    await fetch("/api/uploadImage", {
       method: "POST",
       body: formData,
     });
-    const modifiedImage = await res.json();
-    console.log(modifiedImage);
-    // console.log(modifiedImage.data);
-    props.setEditedImage(modifiedImage);
   };
 
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
+    uploadImage();
     return (
       <main className="flex grow">
         <div className="grid w-full animate-fade-in-top grid-cols-2 grid-rows-4 items-center justify-center">
@@ -66,7 +82,7 @@ const EditingPage = (props) => {
             <Button
               className="mr-5 transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               color="primary"
-              onPress={() => props.setUploadedImage(null)}
+              onPress={() => handleClick("Back to Image Selection")}
             >
               Back to Image Selection
             </Button>
@@ -109,7 +125,7 @@ const EditingPage = (props) => {
             <Button
               className="w-full max-w-md transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               color="primary"
-              onPress={handleClick}
+              onPress={() => handleClick("Edit the Image")}
             >
               Edit the Image
             </Button>
