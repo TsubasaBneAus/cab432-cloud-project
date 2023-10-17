@@ -3,7 +3,7 @@
 import { Image, Button, Input, useDisclosure } from "@nextui-org/react";
 import EditingTabs from "./EditingTabs";
 import ErrorModal from "./ErrorModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const EditingPage = (props) => {
   const [message, setMessage] = useState("");
@@ -27,54 +27,24 @@ const EditingPage = (props) => {
     values: ["JPEG", "PNG", "WebP", "TIFF", "HEIF", "AVIF"],
   };
 
-  // Display an image as a preview
-  const displayPreview = () => {
-    // Check if an uploaded image exist and the image after editing does not exist
-    if (props.uploadedImage && !props.editedImage) {
-      return (
-        <Image
-          className="max-h-[350px] max-w-[600px]"
-          src={window.URL.createObjectURL(props.uploadedImage)}
-          alt="Uploaded image"
-          shadow="lg"
-        />
-      );
-    }
-
-    const base64Image = Buffer.from(props.editedImage).toString("base64");
-    return (
-      <Image
-        className="max-h-[350px] max-w-[600px]"
-        src={`data:image/jpeg;base64,${base64Image}`}
-        alt="Edited image"
-        shadow="lg"
-      />
-    );
-  };
-
-  // Handle the click event of buttons
-  const handleClick = async (action) => {
-    // Check the action of the button
-    if (action == "Back to Image Selection") {
-      // Set all values to null 
-      props.setUploadedImage(null);
-      props.setEditedImage(null);
-      props.setImageWidth(null);
-      props.setImageEffect(null);
-      props.setImageFormatType(null);
-
-      // Delete an image from Redis and RDS
-      const res = await fetch("/api/deleteImage");
-      const result = await res.json();
-      displayErrorModal(result);
-    }
-  };
-
   // Display an error modal
   const displayErrorModal = (result) => {
     // Check if an error modal is displayed
     if (result.state) {
       onClose();
+
+      // Check if the edited Node.js Buffer exists
+      if (result.image) {
+        console.log("TEST1");
+
+        // Check if both uploaded and edited images exist
+        if (props.uploadedImage && props.editedImage) {
+          props.setUploadedImage(result.image);
+          props.setEditedImage(null);
+        } else {
+          props.setEditedImage(result.image);
+        }
+      }
     } else {
       setMessage(result.message);
 
@@ -98,19 +68,79 @@ const EditingPage = (props) => {
 
   // Upload an image to Redis and RDS
   const uploadImage = async () => {
-    const formData = new FormData();
-    formData.append("image", props.uploadedImage);
     const res = await fetch("/api/uploadImage", {
       method: "POST",
-      body: formData,
+      body: JSON.stringify({ image: props.uploadedImage }),
     });
     const result = await res.json();
     displayErrorModal(result);
   };
 
+  // Display an image as a preview
+  const displayPreview = () => {
+    console.log("PREVIEW");
+    // Check if an uploaded image exist and the image after editing does not exist
+    if (props.uploadedImage && !props.editedImage) {
+      return (
+        <Image
+          className="max-h-[350px] max-w-[600px]"
+          src={`data:image/jpeg;base64,${props.uploadedImage}`}
+          alt="Uploaded image"
+          shadow="lg"
+        />
+      );
+    } else {
+      return (
+        <Image
+          className="max-h-[350px] max-w-[600px]"
+          src={`data:image/jpeg;base64,${props.editedImage}`}
+          alt="Edited image"
+          shadow="lg"
+        />
+      );
+    }
+  };
+
+  // Handle the onClick event of buttons
+  const handleClick = async (action) => {
+    // Check the action of the button
+    if (action == "Back to Image Selection") {
+      // Set all values to null
+      props.setUploadedImage(null);
+      props.setEditedImage(null);
+      props.setImageWidth(null);
+      props.setImageEffect(null);
+      props.setImageFormatType(null);
+
+      // Delete an image from Redis and RDS
+      const res = await fetch("/api/deleteImage");
+      const result = await res.json();
+      displayErrorModal(result);
+    } else if (action == "Edit the Image") {
+      const res = await fetch("/api/editImage", {
+        method: "POST",
+        body: JSON.stringify({
+          imageWidth: props.imageWidth,
+          imageEffect: props.imageEffect,
+          imageFormatType: props.imageFormatType,
+        }),
+      });
+      const result = await res.json();
+      displayErrorModal(result);
+    }
+  };
+
+  // Handle the onChange event to convert the image into a base64-encoded Node.js Buffer
+  const handleChange = async (e) => {
+    const arrayBuffer = await e.target.files[0].arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer).toString("base64");
+    props.setUploadedImage(buffer);
+  };
+
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
     uploadImage();
+
     return (
       <main className="flex grow">
         <ErrorModal
@@ -205,7 +235,7 @@ const EditingPage = (props) => {
           accept="image/*"
           name="image"
           id="image"
-          onChange={(e) => props.setUploadedImage(e.target.files[0])}
+          onChange={(e) => handleChange(e)}
           required
         />
       </main>

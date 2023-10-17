@@ -6,12 +6,8 @@ import { PrismaClient } from "@prisma/client";
 export const POST = async (req) => {
   try {
     // Extract the data of "image" key from the FormData
-    const data = await req.formData();
-    const image = data.get("image");
-
-    // Convert the image data into a base64-encoded Node.js Buffer
-    const arrayBuffer = await image.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer).toString("base64");
+    const data = await req.json();
+    const buffer = data.image;
 
     // Upload the base64-encoded Node.js Buffer to Redis
     const session = await getServerSession(authOptions);
