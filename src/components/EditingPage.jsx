@@ -1,12 +1,26 @@
 "use client";
 
+import { Image, Button, Input, useDisclosure } from "@nextui-org/react";
 import EditingTabs from "./EditingTabs";
-import { Image, Button, Input } from "@nextui-org/react";
+import ErrorModal from "./ErrorModal";
+import { useState } from "react";
 
 const EditingPage = (props) => {
+  const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorButtonTitle, setErrorButtonTitle] = useState("");
+  const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
   const effects = {
     title: "Effect",
-    values: ["None", "Blur", "Median", "Gamma", "Negate", "Convolve", "Grayscale"],
+    values: [
+      "None",
+      "Blur",
+      "Median",
+      "Gamma",
+      "Negate",
+      "Convolve",
+      "Grayscale",
+    ],
   };
   const formatTypes = {
     title: "Image Format Type",
@@ -42,20 +56,43 @@ const EditingPage = (props) => {
   const handleClick = async (action) => {
     // Check the action of the button
     if (action == "Back to Image Selection") {
+      // Set all values to null 
       props.setUploadedImage(null);
       props.setEditedImage(null);
       props.setImageWidth(null);
       props.setImageEffect(null);
       props.setImageFormatType(null);
+
+      // Delete an image from Redis and RDS
+      const res = await fetch("/api/deleteImage");
+      const result = await res.json();
+      displayErrorModal(result);
+    }
+  };
+
+  // Display an error modal
+  const displayErrorModal = (result) => {
+    // Check if an error modal is displayed
+    if (result.state) {
+      onClose();
     } else {
-      const formData = new FormData();
-      formData.append("image", props.uploadedImage);
-      const res = await fetch("/api/uploadImages", {
-        method: "POST",
-        body: formData,
-      });
-      const modifiedImage = await res.json();
-      props.setEditedImage(modifiedImage);
+      setMessage(result.message);
+
+      // Change error messages depending on the contents of the error
+      switch (result.message) {
+        case "Uploading Error":
+          setErrorMessage(
+            "It failed to upload your image to the cache and database. Please click on the button below to go to the Image Selection page.",
+          );
+          setErrorButtonTitle("Back To Image Selection");
+          break;
+        case "Deletion Error":
+          setErrorMessage(
+            "It failed to delete your image from the cache and database. Please click on the button below to go to the Image Selection page.",
+          );
+          setErrorButtonTitle("Back To Image Selection");
+      }
+      onOpen();
     }
   };
 
@@ -63,10 +100,12 @@ const EditingPage = (props) => {
   const uploadImage = async () => {
     const formData = new FormData();
     formData.append("image", props.uploadedImage);
-    await fetch("/api/uploadImage", {
+    const res = await fetch("/api/uploadImage", {
       method: "POST",
       body: formData,
     });
+    const result = await res.json();
+    displayErrorModal(result);
   };
 
   // Change the display of the editing page depending on if an uploaded image exists
@@ -74,6 +113,15 @@ const EditingPage = (props) => {
     uploadImage();
     return (
       <main className="flex grow">
+        <ErrorModal
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onOpenChange={onOpenChange}
+          setUploadedImage={props.setUploadedImage}
+          message={message}
+          errorMessage={errorMessage}
+          errorButtonTitle={errorButtonTitle}
+        />
         <div className="grid w-full animate-fade-in-top grid-cols-2 grid-rows-4 items-center justify-center">
           <div className="col-start-1 col-end-2 row-start-1 row-end-4 flex items-center justify-center">
             {displayPreview()}
@@ -136,6 +184,15 @@ const EditingPage = (props) => {
   } else {
     return (
       <main className="flex grow flex-col items-center justify-center">
+        <ErrorModal
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onOpenChange={onOpenChange}
+          setUploadedImage={props.setUploadedImage}
+          message={message}
+          errorMessage={errorMessage}
+          errorButtonTitle={errorButtonTitle}
+        />
         <label
           className="mb-5 animate-fade-in-top text-center text-4xl font-semibold transition-colors hover:text-indigo-500"
           htmlFor="image"
