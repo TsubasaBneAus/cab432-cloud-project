@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { CircularProgress } from "@nextui-org/react";
 import EditingPage from "@/components/EditingPage";
+import { defaultValues } from "@/lib/constVariables";
 
 const Home = () => {
-  const [uploadedImage, setUploadedImage] = useState(null);
-  const [editedImage, setEditedImage] = useState(null);
-  const [imageWidth, setImageWidth] = useState(300);
-  const [imageEffect, setImageEffect] = useState("None");
-  const [imageFormatType, setImageFormatType] = useState("JPEG");
+  const [uploadedImage, setUploadedImage] = useState(defaultValues.uploadedImage);
+  const [editedImage, setEditedImage] = useState(defaultValues.editedImage);
+  const [imageWidth, setImageWidth] = useState(defaultValues.imageWidth);
+  const [imageEffect, setImageEffect] = useState(defaultValues.imageEffect);
+  const [imageFormatType, setImageFormatType] = useState(defaultValues.imageFormatType);
   const { status } = useSession();
   // Handle a click event to download the edited image
   // const handleClick = () => {
@@ -26,8 +27,20 @@ const Home = () => {
   //   a.click();
   // };
 
+  // Download an image from Redis or RDS if it exists
+  const downloadImage = async () => {
+    const res = await fetch("/api/downloadImage");
+    const result = await res.json();
+
+    // Check if an image exists
+    if (result.image) {
+      setUploadedImage(result.image);
+    }
+  };
+
   // Change the top page depending on if a user is already signed in
   if (status == "authenticated") {
+    downloadImage();
     return (
       <EditingPage
         uploadedImage={uploadedImage}
@@ -58,9 +71,12 @@ const Home = () => {
   } else {
     return (
       <main className="flex grow flex-col items-center justify-center">
-        <h1 className="mb-5 animate-fade-in-top text-center text-4xl font-semibold">
+        <button
+          className="mb-5 animate-fade-in-top text-center text-4xl font-semibold transition-colors hover:text-indigo-500"
+          onClick={() => signIn("google")}
+        >
           Please Sign in to the Image Converter Account!
-        </h1>
+        </button>
       </main>
     );
   }

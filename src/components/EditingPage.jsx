@@ -1,70 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Image, Button, Input, useDisclosure } from "@nextui-org/react";
 import EditingTabs from "./EditingTabs";
 import ErrorModal from "./ErrorModal";
-import { useEffect, useState } from "react";
+import displayErrorModal from "@/lib/DisplayErrorModal";
+import { effects, formatTypes, defaultValues } from "@/lib/constVariables";
 
 const EditingPage = (props) => {
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [errorButtonTitle, setErrorButtonTitle] = useState("");
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-  const effects = {
-    title: "Effect",
-    values: [
-      "None",
-      "Blur",
-      "Median",
-      "Gamma",
-      "Negate",
-      "Convolve",
-      "Grayscale",
-    ],
-  };
-  const formatTypes = {
-    title: "Image Format Type",
-    values: ["JPEG", "PNG", "WebP", "TIFF", "HEIF", "AVIF"],
-  };
-
-  // Display an error modal
-  const displayErrorModal = (result) => {
-    // Check if an error modal is displayed
-    if (result.state) {
-      onClose();
-
-      // Check if the edited Node.js Buffer exists
-      if (result.image) {
-        console.log("TEST1");
-
-        // Check if both uploaded and edited images exist
-        if (props.uploadedImage && props.editedImage) {
-          props.setUploadedImage(result.image);
-          props.setEditedImage(null);
-        } else {
-          props.setEditedImage(result.image);
-        }
-      }
-    } else {
-      setMessage(result.message);
-
-      // Change error messages depending on the contents of the error
-      switch (result.message) {
-        case "Uploading Error":
-          setErrorMessage(
-            "It failed to upload your image to the cache and database. Please click on the button below to go to the Image Selection page.",
-          );
-          setErrorButtonTitle("Back To Image Selection");
-          break;
-        case "Deletion Error":
-          setErrorMessage(
-            "It failed to delete your image from the cache and database. Please click on the button below to go to the Image Selection page.",
-          );
-          setErrorButtonTitle("Back To Image Selection");
-      }
-      onOpen();
-    }
-  };
 
   // Upload an image to Redis and RDS
   const uploadImage = async () => {
@@ -73,12 +20,24 @@ const EditingPage = (props) => {
       body: JSON.stringify({ image: props.uploadedImage }),
     });
     const result = await res.json();
-    displayErrorModal(result);
+
+    // Display an Error Modal
+    displayErrorModal(
+      result,
+      onClose,
+      onOpen,
+      props.uploadedImage,
+      props.editedImage,
+      props.setUploadedImage,
+      props.setEditedImage,
+      setMessage,
+      setErrorMessage,
+      setErrorButtonTitle,
+    );
   };
 
   // Display an image as a preview
   const displayPreview = () => {
-    console.log("PREVIEW");
     // Check if an uploaded image exist and the image after editing does not exist
     if (props.uploadedImage && !props.editedImage) {
       return (
@@ -105,18 +64,34 @@ const EditingPage = (props) => {
   const handleClick = async (action) => {
     // Check the action of the button
     if (action == "Back to Image Selection") {
-      // Set all values to null
-      props.setUploadedImage(null);
-      props.setEditedImage(null);
-      props.setImageWidth(null);
-      props.setImageEffect(null);
-      props.setImageFormatType(null);
-
       // Delete an image from Redis and RDS
       const res = await fetch("/api/deleteImage");
       const result = await res.json();
-      displayErrorModal(result);
+
+      // Check if an image was deleted properly
+      if (result.state) {
+        props.setUploadedImage(defaultValues.uploadedImage);
+        props.setEditedImage(defaultValues.editedImage);
+        props.setImageWidth(defaultValues.imageWidth);
+        props.setImageEffect(defaultValues.imageEffect);
+        props.setImageFormatType(defaultValues.imageFormatType);
+      } else {
+        // Display an Error Modal
+        displayErrorModal(
+          result,
+          onClose,
+          onOpen,
+          props.uploadedImage,
+          props.editedImage,
+          props.setUploadedImage,
+          props.setEditedImage,
+          setMessage,
+          setErrorMessage,
+          setErrorButtonTitle,
+        );
+      }
     } else if (action == "Edit the Image") {
+      // Edit an image
       const res = await fetch("/api/editImage", {
         method: "POST",
         body: JSON.stringify({
@@ -126,7 +101,20 @@ const EditingPage = (props) => {
         }),
       });
       const result = await res.json();
-      displayErrorModal(result);
+
+      // Display an Error Modal
+      displayErrorModal(
+        result,
+        onClose,
+        onOpen,
+        props.uploadedImage,
+        props.editedImage,
+        props.setUploadedImage,
+        props.setEditedImage,
+        setMessage,
+        setErrorMessage,
+        setErrorButtonTitle,
+      );
     }
   };
 
@@ -148,6 +136,10 @@ const EditingPage = (props) => {
           onOpen={onOpen}
           onOpenChange={onOpenChange}
           setUploadedImage={props.setUploadedImage}
+          setEditedImage={props.setEditedImage}
+          setImageWidth={props.setImageWidth}
+          setImageEffect={props.setImageEffect}
+          setImageFormatType={props.setImageFormatType}
           message={message}
           errorMessage={errorMessage}
           errorButtonTitle={errorButtonTitle}
@@ -214,15 +206,6 @@ const EditingPage = (props) => {
   } else {
     return (
       <main className="flex grow flex-col items-center justify-center">
-        <ErrorModal
-          isOpen={isOpen}
-          onOpen={onOpen}
-          onOpenChange={onOpenChange}
-          setUploadedImage={props.setUploadedImage}
-          message={message}
-          errorMessage={errorMessage}
-          errorButtonTitle={errorButtonTitle}
-        />
         <label
           className="mb-5 animate-fade-in-top text-center text-4xl font-semibold transition-colors hover:text-indigo-500"
           htmlFor="image"
