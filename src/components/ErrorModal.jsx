@@ -8,6 +8,7 @@ import {
   ModalFooter,
   Button,
 } from "@nextui-org/react";
+import { defaultValues } from "@/lib/constVariables";
 
 const ErrorModal = (props) => {
   return (
@@ -33,9 +34,14 @@ const ErrorModal = (props) => {
               <Button
                 className="flex items-center justify-center"
                 color="primary"
-                onPress={() => {
+                onPress={async () => {
                   onClose();
-                  props.setUploadedImage(null);
+                  // Set default values to all states
+                  props.setUploadedImage(defaultValues.uploadedImage);
+                  props.setEditedImage(defaultValues.uploadedImage);
+                  props.setImageWidth(defaultValues.imageWidth);
+                  props.setImageEffect(defaultValues.imageEffect);
+                  props.setImageFormatType(defaultValues.imageFormatType);
                 }}
               >
                 {props.errorButtonTitle}
