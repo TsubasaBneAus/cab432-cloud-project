@@ -115,6 +115,25 @@ const EditingPage = (props) => {
         setErrorMessage,
         setErrorButtonTitle,
       );
+    } else {
+      // Check if "editedImage" exists
+      let downloadedImage;
+      if (props.editedImage) {
+        downloadedImage = props.editedImage;
+      } else {
+        downloadedImage = props.uploadedImage;
+      }
+
+      // Convert Node.js Buffer into Blob
+      const buffer = Buffer.from(downloadedImage, "base64");
+      const blob = new Blob([buffer]);
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Download the Blob image into a user's PC
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "downloaded-image.png";
+      a.click();
     }
   };
 
@@ -130,7 +149,7 @@ const EditingPage = (props) => {
     if (props.uploadedImage) {
       uploadImage();
     }
-  }, [props.uploadedImage])
+  }, [props.uploadedImage]);
 
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
@@ -164,7 +183,7 @@ const EditingPage = (props) => {
             <Button
               className="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               color="primary"
-              onPress={() => props.setUploadedImage(null)}
+              onPress={() => handleClick("Download the Edited Image")}
             >
               Download
             </Button>

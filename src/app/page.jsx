@@ -13,19 +13,6 @@ const Home = () => {
   const [imageEffect, setImageEffect] = useState(defaultValues.imageEffect);
   const [imageFormatType, setImageFormatType] = useState(defaultValues.imageFormatType);
   const { status } = useSession();
-  // Handle a click event to download the edited image
-  // const handleClick = () => {
-  //   // Convert Node.js Buffer into Blob
-  //   const buffer = Buffer.from(editedImage);
-  //   const blob = new Blob([buffer]);
-  //   const blobUrl = window.URL.createObjectURL(blob);
-
-  //   // Download the Blob image into a user's PC
-  //   const a = document.createElement("a");
-  //   a.href = blobUrl;
-  //   a.download = "downloaded-image.png";
-  //   a.click();
-  // };
 
   // Download an image from Redis or RDS if it exists
   const downloadImage = async () => {
@@ -39,11 +26,8 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // Download an image if a user is authenticated
-    if (status == "authenticated") {
-      downloadImage();
-    }
-  }, [status])
+    downloadImage();
+  }, [])
 
   // Change the top page depending on if a user is already signed in
   if (status == "authenticated") {
