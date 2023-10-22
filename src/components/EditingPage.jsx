@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Button, Input, useDisclosure } from "@nextui-org/react";
 import EditingTabs from "./EditingTabs";
 import ErrorModal from "./ErrorModal";
@@ -125,10 +125,15 @@ const EditingPage = (props) => {
     props.setUploadedImage(buffer);
   };
 
+  useEffect(() => {
+    // Upload an image if "uploadedImage" exists
+    if (props.uploadedImage) {
+      uploadImage();
+    }
+  }, [props.uploadedImage])
+
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
-    uploadImage();
-
     return (
       <main className="flex grow">
         <ErrorModal

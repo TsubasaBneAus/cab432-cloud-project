@@ -38,9 +38,15 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    // Download an image if a user is authenticated
+    if (status == "authenticated") {
+      downloadImage();
+    }
+  }, [status])
+
   // Change the top page depending on if a user is already signed in
   if (status == "authenticated") {
-    downloadImage();
     return (
       <EditingPage
         uploadedImage={uploadedImage}
