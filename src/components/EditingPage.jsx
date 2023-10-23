@@ -101,6 +101,8 @@ const EditingPage = (props) => {
         }),
       });
       const result = await res.json();
+      props.setEditedImage(result.image);
+      console.log(result.message);
 
       // Display an Error Modal
       displayErrorModal(

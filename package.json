@@ -17,7 +17,8 @@
     "next-auth": "^4.23.2",
     "react": "^18",
     "react-dom": "^18",
-    "redis": "^4.6.10"
+    "redis": "^4.6.10",
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "autoprefixer": "^10",
