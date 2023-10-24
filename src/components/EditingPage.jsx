@@ -12,6 +12,7 @@ const EditingPage = (props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorButtonTitle, setErrorButtonTitle] = useState("");
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+  const [imageFileType, setImageFileType] = useState("");
 
   // Upload an image to Redis and RDS
   const uploadImage = async () => {
@@ -43,7 +44,7 @@ const EditingPage = (props) => {
       return (
         <Image
           className="max-h-[350px] max-w-[600px]"
-          src={`data:image/jpeg;base64,${props.uploadedImage}`}
+          src={`data:image/${imageFileType};base64,${props.uploadedImage}`}
           alt="Uploaded image"
           shadow="lg"
         />
@@ -52,7 +53,7 @@ const EditingPage = (props) => {
       return (
         <Image
           className="max-h-[350px] max-w-[600px]"
-          src={`data:image/jpeg;base64,${props.editedImage}`}
+          src={`data:image/${imageFileType};base64,${props.editedImage}`}
           alt="Edited image"
           shadow="lg"
         />
@@ -97,10 +98,15 @@ const EditingPage = (props) => {
         body: JSON.stringify({
           imageWidth: props.imageWidth,
           imageEffect: props.imageEffect,
-          imageFormatType: props.imageFormatType,
+          imageFormatType: props.imageFormatType.toLowerCase(),
         }),
       });
       const result = await res.json();
+
+      // Check if "fileType" exists in the response
+      if (result.fileType) {
+        setImageFileType(result.fileType);
+      }
 
       // Display an Error Modal
       displayErrorModal(
@@ -132,7 +138,7 @@ const EditingPage = (props) => {
       // Download the Blob image into a user's PC
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = "downloaded-image.png";
+      a.download = `downloaded-image.${imageFileType}`;
       a.click();
     }
   };
@@ -142,6 +148,8 @@ const EditingPage = (props) => {
     const arrayBuffer = await e.target.files[0].arrayBuffer();
     const buffer = Buffer.from(arrayBuffer).toString("base64");
     props.setUploadedImage(buffer);
+    const split = e.target.files[0].type.split("/");
+    setImageFileType(split[1]);
   };
 
   useEffect(() => {
@@ -149,7 +157,7 @@ const EditingPage = (props) => {
     if (props.uploadedImage) {
       uploadImage();
     }
-  }, [props.uploadedImage]);
+  }, [props.uploadedImage, props.editedImage]);
 
   // Change the display of the editing page depending on if an uploaded image exists
   if (props.uploadedImage) {
