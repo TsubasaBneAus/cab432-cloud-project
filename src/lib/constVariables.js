@@ -19,7 +19,7 @@ export const formatTypes = {
 export const defaultValues = {
   uploadedImage: "",
   editedImage: "",
-  imageWidth: 300,
+  imageWidth: 800,
   imageEffect: "None",
   imageFormatType: "JPEG",
 };

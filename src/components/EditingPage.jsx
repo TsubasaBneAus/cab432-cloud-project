@@ -12,6 +12,7 @@ const EditingPage = (props) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorButtonTitle, setErrorButtonTitle] = useState("");
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+  const [fileType, setFileType] = useState("jpeg");
 
   // Upload an image to Redis and RDS
   const uploadImage = async () => {
@@ -101,8 +102,9 @@ const EditingPage = (props) => {
         }),
       });
       const result = await res.json();
+      setFileType(result.file);
       props.setEditedImage(result.image);
-      console.log(result.message);
+      console.log(result);
 
       // Display an Error Modal
       displayErrorModal(
@@ -134,7 +136,7 @@ const EditingPage = (props) => {
       // Download the Blob image into a user's PC
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = "downloaded-image.png";
+      a.download = `downloaded-image.${fileType}`;
       a.click();
     }
   };

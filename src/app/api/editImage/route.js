@@ -5,6 +5,8 @@ import { PrismaClient } from "@prisma/client";
 
 import sharp from 'sharp';
 
+import {fileTypeFromBuffer} from 'file-type';
+
 // Check if the image is stored in RDS
 const checkRDS = async () => {
   try {
@@ -61,32 +63,33 @@ export const POST = async (req, res) => {
           newBuffer = await editedImage.resize(width).toFormat(`${format}`).toBuffer();
           break;
         case "Blur":
-          newBuffer = await editedImage.resize(width).blur().toFormat(`${format}`).toBuffer();
+          newBuffer = await editedImage.resize(width).blur(5).toFormat(`${format}`).toBuffer();
           break;
         case "Median":
           newBuffer = await editedImage.resize(width).median().toFormat(`${format}`).toBuffer();
           break;
         case "Gamma":
-          newBuffer = await editedImage.resize(width).gamma.toFormat(`${format}`).toBuffer();
+          newBuffer = await editedImage.resize(width).gamma().toFormat(`${format}`).toBuffer();
           break;
         case "Negate":
-          newBuffer = await editedImage.resize(width).negate.toFormat(`${format}`).toBuffer();
+          newBuffer = await editedImage.resize(width).negate().toFormat(`${format}`).toBuffer();
           break;
         case "Convolve":
-          newBuffer = await editedImage.resize(width).convolve.toFormat(`${format}`).toBuffer();
+          newBuffer = await editedImage.resize(width).convolve().toFormat(`${format}`).toBuffer();
           break;
         case "Grayscale":
-        newBuffer = await editedImage.resize(width).grayscale.toFormat(`${format}`).toBuffer();
+          newBuffer = await editedImage.resize(width).grayscale().toFormat(`${format}`).toBuffer();
         break;
     }
+      const type = await fileTypeFromBuffer(newBuffer);
       const base64Image = newBuffer.toString('base64');
-      
-      return Response.json({ state: true, message: `${effect}`, image: base64Image });
+    
+      return Response.json({ state: true, message: `${type.ext}`, image: base64Image, file: type.ext });
     } else {
       return Response.json({ state: true, message: "no buffer" });
     }
   } catch (e) {
-    // return checkRDS();
-    return Response.json({ state: true, message: "error (checkRDS)" });
+    return checkRDS();
+    // return Response.json({ state: true, message: "error (checkRDS)" });
   }
 };
