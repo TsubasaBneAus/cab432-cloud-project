@@ -13,7 +13,7 @@ export const effects = {
 
 export const formatTypes = {
   title: "Image Format Type",
-  values: ["JPEG", "PNG", "WebP", "TIFF", "HEIF", "AVIF"],
+  values: ["JPEG", "PNG", "WebP", "TIFF", "AVIF"],
 };
 
 export const defaultValues = {

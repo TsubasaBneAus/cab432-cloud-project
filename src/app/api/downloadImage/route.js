@@ -26,7 +26,7 @@ const checkRDS = async () => {
       return Response.json({ state: true, message: "Success", image: null });
     }
   } catch (e) {
-    return Response.json({ state: false, message: "Downloading Error", image: null });
+    return Response.json({ state: false, message: "Image Downloading Error", image: null });
   }
 };
 

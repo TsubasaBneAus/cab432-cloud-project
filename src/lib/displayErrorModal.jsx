@@ -18,7 +18,7 @@ const displayErrorModal = (
     // Check if the edited Node.js Buffer exists
     if (result.image) {
       // Check if both uploaded and edited images exist
-      if (uploadedImage && editedImage) {
+      if (uploadedImage != "" && editedImage != "") {
         setUploadedImage(result.image);
         setEditedImage("");
       } else {
@@ -41,6 +41,13 @@ const displayErrorModal = (
           "It failed to delete your image from the cache and database. Please click on the button below to go to the Image Selection page and try again in a minute.",
         );
         setErrorButtonTitle("Back To Image Selection");
+        break;
+      case "Image Editing Error":
+        setErrorMessage(
+          "It failed to edit your image. Please click on the button below to go to the Image Selection page and try again in a minute.",
+        )
+        setErrorButtonTitle("Back To Image Selection");
+        break;
     }
     onOpen();
   }

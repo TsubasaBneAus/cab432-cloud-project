@@ -6,7 +6,6 @@ import { PrismaClient } from "@prisma/client";
 // Upload the base64-encoded Node.js Buffer to RDS
 const uploadImageToRDS = async (buffer) => {
   try {
-    // throw Error;
     const session = await getServerSession(authOptions);
     const prisma = new PrismaClient();
     await prisma.userImage.update({
