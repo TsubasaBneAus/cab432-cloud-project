@@ -8,12 +8,11 @@ const deleteUserFromRDS = async () => {
   try {
     const session = await getServerSession(authOptions);
     const prisma = new PrismaClient();
-    const deleteUser = await prisma.user.delete({
+    await prisma.user.delete({
       where: {
         id: session.user.id,
       },
     });
-    console.log(deleteUser);
   
     return Response.json({ state: true, message: "Success" });
   } catch (e) {

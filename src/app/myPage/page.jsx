@@ -24,7 +24,6 @@ const MyPage = () => {
       method: "DELETE",
     });
     const result = await res.json();
-    console.log(result);
 
     // Check if a user's account was deleted properly
     if (result.state) {
