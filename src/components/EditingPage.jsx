@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Image, Button, Input, useDisclosure } from "@nextui-org/react";
 import EditingTabs from "./EditingTabs";
 import ErrorModal from "./ErrorModal";
-import displayErrorModal from "@/lib/DisplayErrorModal";
-import { effects, formatTypes, defaultValues } from "@/lib/constVariables";
+import displayErrorModal from "../lib/displayErrorModal";
+import { effects, formatTypes, defaultValues } from "../lib/constVariables";
 
 const EditingPage = (props) => {
   const [message, setMessage] = useState("");
@@ -66,7 +66,9 @@ const EditingPage = (props) => {
     // Check the action of the button
     if (action == "Back to Image Selection") {
       // Delete an image from Redis and RDS
-      const res = await fetch("/api/deleteImage");
+      const res = await fetch("/api/deleteImage", {
+        method: "DELETE"
+      });
       const result = await res.json();
 
       // Check if an image was deleted properly

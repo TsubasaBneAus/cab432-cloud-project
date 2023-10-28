@@ -20,8 +20,11 @@ const MyPage = () => {
 
   // Delete user account from the database
   const deleteUserAccount = async () => {
-    const res = await fetch("/api/deleteUserAccount");
+    const res = await fetch("/api/deleteUserAccount", {
+      method: "DELETE",
+    });
     const result = await res.json();
+    console.log(result);
 
     // Check if a user's account was deleted properly
     if (result.state) {

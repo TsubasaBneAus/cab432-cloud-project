@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { CircularProgress } from "@nextui-org/react";
-import EditingPage from "@/components/EditingPage";
-import { defaultValues } from "@/lib/constVariables";
+import EditingPage from "../components/EditingPage"
+import { defaultValues } from "../lib/constVariables";
 
 const Home = () => {
   const [uploadedImage, setUploadedImage] = useState(defaultValues.uploadedImage);

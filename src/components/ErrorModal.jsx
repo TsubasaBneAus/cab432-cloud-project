@@ -8,7 +8,7 @@ import {
   ModalFooter,
   Button,
 } from "@nextui-org/react";
-import { defaultValues } from "@/lib/constVariables";
+import { defaultValues } from "../lib/constVariables";
 
 const ErrorModal = (props) => {
   return (
