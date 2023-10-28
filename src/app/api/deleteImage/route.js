@@ -23,7 +23,7 @@ const deleteImageFromRDS = async () => {
   }
 };
 
-export const GET = async () => {
+export const DELETE = async () => {
   try {
     // Delete the base64-encoded Node.js Buffer from Redis
     const session = await getServerSession(authOptions);

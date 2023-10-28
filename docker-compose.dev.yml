@@ -23,14 +23,11 @@ services:
     container_name: cab432-cloud-project-redis-dev
     ports:
       - 6379:6379
-    volumes:
-      - redis-data:/data
     networks:
       - shared-network
 
 volumes:
   node_modules:
-  redis-data:
 
 networks:
   shared-network:
